@@ -16,12 +16,15 @@ import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
+import javafx.print.*;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.transform.Scale;
 import javafx.scene.web.PopupFeatures;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
@@ -57,6 +60,9 @@ public class FXMLDocumentController implements Initializable {
     private AnchorPane downloadAnchorPane;
     @FXML
     private ListView<String> favList;
+
+    @FXML
+    private Button printButton;
     private TextField urlSearch;
     private class DownloadTask extends Task<Void> {
 
@@ -180,17 +186,14 @@ public class FXMLDocumentController implements Initializable {
                 smallAnchor.getChildren().add(toolBar);
                 
                 bookmarksMenu.setText("Bookmarks");
-                settingsMenu.setText("Settings");
-                helpMenu.setText("Help");
-                
-                menuBar.getMenus().addAll(bookmarksMenu, settingsMenu, helpMenu);
+                menuBar.getMenus().addAll(bookmarksMenu);
                     menuBar.setPrefWidth(190);
                     menuBar.setPrefHeight(40);
-                    menuBar.setPadding(new Insets(6,0,0,0));
-                AnchorPane.setRightAnchor(menuBar, 0.0);
+                    menuBar.setPadding(new Insets(4,0,0,0));
+                AnchorPane.setRightAnchor(menuBar, 7.0);
                 
                                   
-                urlBox.setPromptText("🔎 enter your url here or search something");
+                urlBox.setPromptText("🔎 enter une url");
                 urlBox.setPrefHeight(30);
                 urlBox.setPrefWidth(391);
                 goButton.setPrefHeight(30);
@@ -201,8 +204,8 @@ public class FXMLDocumentController implements Initializable {
                 
                 hBox.getChildren().addAll(urlBox, goButton, reloadButton);
                 hBox.setSpacing(5.0);
-                AnchorPane.setTopAnchor(hBox, 5.0);
-                AnchorPane.setLeftAnchor(hBox, 60.0);
+                AnchorPane.setTopAnchor(hBox, 7.0);
+                AnchorPane.setLeftAnchor(hBox, 80.0);
                 smallAnchor.getChildren().add(hBox);
                 
 
@@ -219,22 +222,25 @@ public class FXMLDocumentController implements Initializable {
         
                 newTab.setContent(smallAnchor);
                 newTab.setOnClosed((Event arg) -> {
-                    System.out.println("A tab closed.");
                     newTabBtnPosLeft();
                     myBrowser.closeWindow();
                 });
                 
                 backButton.setOnMouseClicked((MouseEvent me) -> {
-                    System.out.println("Back button has been pressed.");
+
                     myBrowser.goBack();
                     label.setText("");
                 });
+
                 
                 forwardButton.setOnMouseClicked((MouseEvent me) -> {
                     System.out.println("Forward button has been pressed.");
                     myBrowser.goForward();
                     label.setText("");
                 });
+            printButton.setOnMouseClicked((MouseEvent me) -> {
+                myBrowser.print();
+            });
 
                 AnchorPane.setTopAnchor(tabPane, 0.0);
                 AnchorPane.setBottomAnchor(tabPane, 0.0);
@@ -299,7 +305,10 @@ public class FXMLDocumentController implements Initializable {
         class MyBrowser extends Region{
             WebView browser = new WebView();
             final WebEngine webEngine = browser.getEngine();
-            WebHistory history = webEngine.getHistory();  
+            WebHistory history = webEngine.getHistory();
+            public WebView getView(){
+                return browser;
+            }
 
                 public MyBrowser(String url) {
                     webEngine.getLoadWorker().stateProperty().addListener(
@@ -434,6 +443,25 @@ public class FXMLDocumentController implements Initializable {
                       throw new RuntimeException(ex);
                     }
                 }
+            public void print() {
+
+                Printer printer = Printer.getDefaultPrinter();
+                PageLayout pageLayout = printer.createPageLayout(Paper.NA_LETTER, PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
+                double scaleX = pageLayout.getPrintableWidth() / browser.getBoundsInParent().getWidth();
+                double scaleY = pageLayout.getPrintableHeight() / browser.getBoundsInParent().getHeight();
+                browser.getTransforms().add(new Scale(scaleX, scaleY));
+
+                PrinterJob job = PrinterJob.createPrinterJob();
+                if (job != null) {
+                    boolean success = job.printPage(browser);
+                    if (success) {
+                        job.endJob();
+                    }
+                }
+                double scaleX1 = pageLayout.getPrintableWidth() * browser.getBoundsInParent().getWidth();
+                double scaleY1 = pageLayout.getPrintableHeight() * browser.getBoundsInParent().getHeight();
+                browser.getTransforms().add(new Scale(scaleX1, scaleY1));
+            }
                 
                 public void closeWindow(){
                     browser.getEngine().load(null);
@@ -533,11 +561,11 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     ListView historyList;
-    
 
-    
 
-    
+
+
+
     @FXML
     Label historyLabel;
     @FXML
@@ -556,6 +584,8 @@ public class FXMLDocumentController implements Initializable {
         iv.setFitHeight(21);
         iv.setFitWidth(20);
         homeBtn.setGraphic(iv);
+
+
         
         ImageView iv2 = new ImageView();
         Image img2 = new Image("file:Resources/downloadIcon.png");
@@ -570,6 +600,13 @@ public class FXMLDocumentController implements Initializable {
         iv3.setFitHeight(21);
         iv3.setFitWidth(20);
         bookmarkButton.setGraphic(iv3);
+
+        ImageView iv5 = new ImageView();
+        Image img5 = new Image("file:Resources/printicon.png");
+        iv5.setImage(img5);
+        iv5.setFitHeight(21);
+        iv5.setFitWidth(20);
+        printButton.setGraphic(iv5);
 
         ObservableList<String> HistItems = FXCollections.observableArrayList ();
         ArrayList<HistoryObject> ar = new ArrayList();
