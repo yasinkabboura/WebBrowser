@@ -35,10 +35,7 @@ import javafx.stage.Stage;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -60,6 +57,12 @@ public class FXMLDocumentController implements Initializable {
     private AnchorPane downloadAnchorPane;
     @FXML
     private ListView<String> favList;
+    @FXML
+    private ProgressBar progressBAR;
+    @FXML
+    private Button priveButton;
+    private String mode;
+    private int Counter;
 
     @FXML
     private Button printButton;
@@ -172,15 +175,16 @@ public class FXMLDocumentController implements Initializable {
         }
         
         public Tab createTab(){
+
             goButton.setText("Go");
             newTab.setText("New Tab");
             
             backButton.setText("◁");
             forwardButton.setText("▷");
                     toolBar.getItems().addAll(backButton, forwardButton);
-                    toolBar.setPrefHeight(40);
+                    toolBar.setPrefHeight(100);
                     toolBar.setPrefWidth(549);
-                AnchorPane.setTopAnchor(toolBar, 0.0);
+                AnchorPane.setTopAnchor(toolBar, -30.0);
                 AnchorPane.setLeftAnchor(toolBar, 0.0);
                 AnchorPane.setRightAnchor(toolBar, 0.0);
                 smallAnchor.getChildren().add(toolBar);
@@ -212,15 +216,17 @@ public class FXMLDocumentController implements Initializable {
                 AnchorPane.setTopAnchor(label, 10.0);
                 AnchorPane.setLeftAnchor(label, 520.0);
                 smallAnchor.getChildren().add(label);
-                
-                
-                AnchorPane.setTopAnchor(borderPane, 40.0);
+
+
+                AnchorPane.setTopAnchor(borderPane, 70.0);
                 AnchorPane.setBottomAnchor(borderPane, 0.0);
                 AnchorPane.setLeftAnchor(borderPane, 0.0);
                 AnchorPane.setRightAnchor(borderPane, 0.0);
                 smallAnchor.getChildren().add(borderPane);
+
         
                 newTab.setContent(smallAnchor);
+
                 newTab.setOnClosed((Event arg) -> {
                     newTabBtnPosLeft();
                     myBrowser.closeWindow();
@@ -250,6 +256,18 @@ public class FXMLDocumentController implements Initializable {
 
                 goButton.setOnAction((ActionEvent e) -> {
                     goButtonPressed();
+                });
+
+                priveButton.setOnAction((ActionEvent e) -> {
+                    if(Counter % 2 != 0){
+                        mode="prive";
+                        Counter++;
+                    }
+                    else {
+                        mode="normal";
+                        Counter++;
+                    }
+
                 });
                 
                 reloadButton.setOnAction((ActionEvent e) -> {
@@ -311,6 +329,7 @@ public class FXMLDocumentController implements Initializable {
             }
 
                 public MyBrowser(String url) {
+                    progressBAR.progressProperty().bind(browser.getEngine().getLoadWorker().progressProperty());
                     webEngine.getLoadWorker().stateProperty().addListener(
                     new ChangeListener<State>() {
                         public void changed(ObservableValue ov, State oldState, State newState) {
@@ -330,7 +349,6 @@ public class FXMLDocumentController implements Initializable {
                                 label.setText("");
                                 newTab.setText(webEngine.getTitle());
                                 urlBox.setText(webEngine.getLocation());
-                                newTab.setGraphic(loadFavicon(url));
                                 reloadButton.setText(("↺"));
                                 reloadButton.setOnAction((ActionEvent e) -> {
                                     myBrowser.reloadWebPage();
@@ -349,7 +367,7 @@ public class FXMLDocumentController implements Initializable {
                             }
                         }                       
                     });
-                                
+
                     history.getEntries().addListener(new 
                         ListChangeListener<Entry>() {
                             @Override
@@ -359,10 +377,12 @@ public class FXMLDocumentController implements Initializable {
                                     historyMenu.getItems().remove(e.getUrl());
                                 }
                                 for (Entry e : c.getAddedSubList()) {
-                                    MenuItem menuItem = new MenuItem(e.getUrl().replace(e.getUrl().substring(24), ""));
-                                    histObj.addHist(e.getUrl(), "hist.txt");
+                                    MenuItem menuItem = new MenuItem(e.getUrl().replace(e.getUrl().substring(22), ""));
+                                    if(mode == "normal"){
+                                        histObj.addHist(e.getUrl(), "hist.txt");
+                                    }
+
                                     histItems.add(e.getUrl());
-                                    menuItem.setGraphic(loadFavicon(e.getUrl()));
                                     menuItem.setOnAction((ActionEvent ev) -> {
                                         NewTab aTab = new NewTab();
                                         aTab.goToURL(e.getUrl());
@@ -420,29 +440,7 @@ public class FXMLDocumentController implements Initializable {
                                     : 0); 
                   });    
                 }
-                
-                public ImageView loadFavicon(String location) {
-                    try {
-                      String faviconUrl;
-                      if(webEngine.getTitle().equalsIgnoreCase("Google")){
-                          faviconUrl = "https://www.google.com/s2/favicons?domain_url=www.gmail.com";
-                      }
-                      else{
-                          faviconUrl = String.format("http://www.google.com/s2/favicons?domain_url=%s", URLEncoder.encode(location, "UTF-8"));
-                      }
-                        
-                        Image favicon = new Image(faviconUrl, true);
-                        if(favicon.equals(new Image("http://www.google.com/s2/favicons?domain_url=abc"))){
-                            ImageView iv_default = new ImageView(new Image("file:Resources/home.png"));
-                            return iv_default;
-                        }else{
-                            ImageView iv = new ImageView(favicon);
-                            return iv;
-                        }
-                    } catch (UnsupportedEncodingException ex) {
-                      throw new RuntimeException(ex);
-                    }
-                }
+
             public void print() {
 
                 Printer printer = Printer.getDefaultPrinter();
@@ -577,9 +575,16 @@ public class FXMLDocumentController implements Initializable {
         Tab tab = aTab.createTab();
         tab.setText("Home Tab");
         tabPane.getTabs().add(tab);
+        mode = "normal";
+        Counter = 1;
         
         ImageView iv = new ImageView();
-        Image img = new Image("file:Resources/home.png");
+        Image img = null;
+        try {
+            img = new Image(new FileInputStream("Resources/home.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         iv.setImage(img);
         iv.setFitHeight(21);
         iv.setFitWidth(20);
@@ -588,25 +593,52 @@ public class FXMLDocumentController implements Initializable {
 
         
         ImageView iv2 = new ImageView();
-        Image img2 = new Image("file:Resources/downloadIcon.png");
+        Image img2 = null;
+        try {
+            img2 = new Image(new FileInputStream("Resources/downloadIcon.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         iv2.setImage(img2);
         iv2.setFitHeight(21);
         iv2.setFitWidth(20);
         downloadButton.setGraphic(iv2);
         
         ImageView iv3 = new ImageView();
-        Image img3 = new Image("file:Resources/Bookmark-512.png");
+        Image img3 = null;
+        try {
+            img3 = new Image(new FileInputStream("Resources/Bookmark-512.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         iv3.setImage(img3);
         iv3.setFitHeight(21);
         iv3.setFitWidth(20);
         bookmarkButton.setGraphic(iv3);
 
         ImageView iv5 = new ImageView();
-        Image img5 = new Image("file:Resources/printicon.png");
+        Image img5 = null;
+        try {
+            img5 = new Image(new FileInputStream("Resources/printicon.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         iv5.setImage(img5);
         iv5.setFitHeight(21);
         iv5.setFitWidth(20);
         printButton.setGraphic(iv5);
+
+        ImageView iv6 = new ImageView();
+        Image img6 = null;
+        try {
+            img6 = new Image(new FileInputStream("Resources/incognito.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        iv6.setImage(img6);
+        iv6.setFitHeight(21);
+        iv6.setFitWidth(20);
+        priveButton.setGraphic(iv6);
 
         ObservableList<String> HistItems = FXCollections.observableArrayList ();
         ArrayList<HistoryObject> ar = new ArrayList();
@@ -614,6 +646,7 @@ public class FXMLDocumentController implements Initializable {
         for (int i = 0; i < ar.size(); i++) {
             HistItems.add(ar.get(i).url);
         }
+        progressBAR.setProgress(0.0);
         historyList.setItems(HistItems);
 
 
