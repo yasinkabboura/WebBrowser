@@ -278,7 +278,7 @@ public class FXMLDocumentController implements Initializable {
             borderPane.setClip(passedBroser);
         }
         
-        
+
         class MyBrowser extends Region{
             WebView browser = new WebView();
             final WebEngine webEngine = browser.getEngine();
@@ -303,7 +303,7 @@ public class FXMLDocumentController implements Initializable {
                                 label.setText("You have aborted loading the page.");
                                 newTab.setGraphic(null);
                             });
-                            
+
                             if (newState == State.SUCCEEDED) {
                                 label.setText("");
                                 newTab.setText(webEngine.getTitle());
@@ -324,10 +324,10 @@ public class FXMLDocumentController implements Initializable {
                                 for (int i = 0; i < el.getLength(); i++) {
                                 }
                             }
-                        }                       
+                        }
                     });
 
-                    history.getEntries().addListener(new 
+                    history.getEntries().addListener(new
                         ListChangeListener<Entry>() {
                             @Override
                             public void onChanged(Change<? extends Entry> c) {
@@ -365,39 +365,39 @@ public class FXMLDocumentController implements Initializable {
                                 }
                                 return browser.getEngine();
                     });
-                    
+
                     final WebView smallView = new WebView();
                     webEngine.load(url);
                     getChildren().add(browser);
                 }
-                
 
-                public void goBack(){ 
+
+                public void goBack(){
                   final WebHistory history = webEngine.getHistory();
                   ObservableList<Entry> entryList = history.getEntries();
                   int currentIndex = history.getCurrentIndex();
 
-                  Platform.runLater(() -> 
+                  Platform.runLater(() ->
                   {
-                    history.go(entryList.size() > 1 
+                    history.go(entryList.size() > 1
                       && currentIndex > 0
                             ? -1
-                            : 0); 
-                  });        
+                            : 0);
+                  });
                 }
-                
+
                 public void goForward(){
-                  final WebHistory history = webEngine.getHistory();   
+                  final WebHistory history = webEngine.getHistory();
                   ObservableList<Entry> entryList = history.getEntries();
                   int currentIndex = history.getCurrentIndex();
 
-                  Platform.runLater(() -> 
+                  Platform.runLater(() ->
                   {
                     history.go(entryList.size() > 1
                       && currentIndex < entryList.size() - 1
                                     ? 1
-                                    : 0); 
-                  });    
+                                    : 0);
+                  });
                 }
 
             public void print() {
@@ -418,13 +418,17 @@ public class FXMLDocumentController implements Initializable {
                 double scaleX1 = pageLayout.getPrintableWidth() * browser.getBoundsInParent().getWidth();
                 double scaleY1 = pageLayout.getPrintableHeight() * browser.getBoundsInParent().getHeight();
                 browser.getTransforms().add(new Scale(scaleX1, scaleY1));
+                String urlStr = urlBox.getText();
+                myBrowser = new MyBrowser(urlStr);
+                borderPane.setCenter(myBrowser);
+
             }
-                
+
                 public void closeWindow(){
                     browser.getEngine().load(null);
                     browser = null;
                 }
-                
+
                 public void reloadWebPage(){
                     webEngine.reload();
                 }

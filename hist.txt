@@ -26,3 +26,10 @@ https://www.google.com/search?ie=ISO-8859-1&hl=fr-MA&source=hp&biw=&bih=&q=googl
 http://www.google.com/
 https://www.google.com/search?ie=ISO-8859-1&hl=fr-MA&source=hp&biw=&bih=&q=wekepedia&iflsig=ALs-wAMAAAAAYe1xzaimihgPNIoMQ3Ylx6zfCRdHzNCC&gbv=2&oq=wekepedia&gs_l=heirloom-hp.3..0i433i10j0i10l9.1536.3668.0.3958.9.9.0.0.0.0.187.1352.0j9.9.0....0...1.1.34.heirloom-hp..0.9.1351.Kf8ciJ4YTt0&gws_rd=ssl
 https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Accueil_principal
+http://www.google.com/
+https://www.google.com/search?ie=ISO-8859-1&hl=fr-MA&source=hp&biw=&bih=&q=googler&iflsig=ALs-wAMAAAAAYe12X48Lqq75ddU6cRr7jN2TpQcGPHX5&gbv=2&oq=googler&gs_l=heirloom-hp.3..0i512i433i131l2j0i512i433j0i512j0i512i433i131l2j0i512i433l4.1001.1860.0.2003.7.5.0.2.2.0.144.345.2j2.4.0....0...1ac.1.34.heirloom-hp..2.5.236.GHig5U-Wfyo&gws_rd=ssl
+https://www.google.co.ma/
+http://www.google.com/
+http://www.google.com/
+https://www.google.com/search?ie=ISO-8859-1&hl=fr-MA&source=hp&biw=&bih=&q=google.com&iflsig=ALs-wAMAAAAAYe13sCNdh5fdlfyYNHc7QBwSHGTeznON&gbv=2&oq=google.com&gs_l=heirloom-hp.3..0i512i433i131l2j0i512i433j0i512j0i512i433i131l2j0i512i433l4.1036.2953.0.3379.10.10.0.0.0.0.302.986.2j2j1j1.6.0....0...1ac.1.34.heirloom-hp..5.5.747.zkEUM8N7btY&gws_rd=ssl
+https://www.google.com/
