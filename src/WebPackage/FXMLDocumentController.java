@@ -39,6 +39,8 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -67,48 +69,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Button printButton;
     private TextField urlSearch;
-    private class DownloadTask extends Task<Void> {
 
-        private String url;
-
-        public DownloadTask(String url) {
-            this.url = url;
-        }
-
-        @Override
-        protected Void call() throws Exception {
-            String ext = url.substring(url.lastIndexOf("."), url.length());
-            URLConnection connection = new URL(url).openConnection();
-            long fileLength = connection.getContentLengthLong();
-
-            try (InputStream is = connection.getInputStream();
-                    OutputStream os = Files.newOutputStream(Paths.get("downloadedfile" + ext))) {
-
-                long nread = 0L;
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = is.read(buf)) > 0) {
-                    os.write(buf, 0, n);
-                    nread += n;
-                    updateProgress(nread, fileLength);
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void failed() {
-            System.out.println("failed");
-            downloadStatusLabel.setText("Download failed!");
-        }
-
-        @Override
-        protected void succeeded() {
-            System.out.println("downloaded");
-            downloadStatusLabel.setText("File download complete");
-        }
-    }
     private Parent createContent() {
         VBox root = new VBox();
         root.setPrefSize(300, 400);
@@ -116,9 +77,7 @@ public class FXMLDocumentController implements Initializable {
         TextField fieldURL = new TextField();
         fieldURL.setPromptText("⚭ enter download link here");
         root.getChildren().addAll(fieldURL);
-
         fieldURL.setOnAction(event -> {
-            downloadStatusLabel.setText("Downloading...");
             Task<Void> task = new DownloadTask(fieldURL.getText());
             ProgressBar progressBar = new ProgressBar();
             progressBar.setPrefWidth(350);
